@@ -24,6 +24,11 @@ class Controller(object):
         ts = 0.02
         self.vel_lpf = LowPassFilter(tau, ts)
 
+        # Use a low pass filter to dampen the steering
+        steer_tau = 0.2
+        steer_ts = 1.0
+        self.steer_lpf = LowPassFilter(steer_tau, steer_ts)
+
         self.vehicle_mass = vehicle_mass
         self.fuel_capacity = fuel_capacity
         self.brake_deadband = brake_deadband
@@ -42,6 +47,10 @@ class Controller(object):
  
         cur_vel = self.vel_lpf.filt(cur_vel)
         steering = self.yaw_controller.get_steering(linear_vel, angular_vel, cur_vel)
+
+        # Apply Low Pass Filter to steering to dampen it.
+        steering = self.steer_lpf.filt(steering)
+
         vel_err = linear_vel - cur_vel
         self.last_vel = cur_vel
         
