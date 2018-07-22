@@ -51,6 +51,7 @@ class TLDetector(object):
         self.state_count = 0
         self.waypoints_2d = None
         self.waypoint_tree = None
+        self.is_classifier = False
         
 
         rospy.spin()
@@ -129,17 +130,18 @@ class TLDetector(object):
         """
         # FIXME: This is only for simulator needs to be removed once the classifier code is integrator
         # For Testing, just return the light state
-        return light.state
+        if(self.is_classifier == False):
+            return light.state
+        #else:    
+            #FIXME: Uncomment following code once Classifier code is integrator
+            #if(not self.has_image):
+            #   self.prev_light_loc = None
+            #    return False
 
-        #FIXME: Uncomment following code once Classifier code is integrator
-        #if(not self.has_image):
-        #    self.prev_light_loc = None
-        #    return False
+            #cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
 
-        #cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
-
-        #Get classification
-        #return self.light_classifier.get_classification(cv_image)
+            #Get classification
+            #return self.light_classifier.get_classification(cv_image)
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
