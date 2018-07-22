@@ -45,7 +45,6 @@ class TLDetector(object):
 
         self.bridge = CvBridge()
         self.is_site = self.config["is_site"]
-        print('is_site', self.is_site)
         self.light_classifier = TLClassifier(self.is_site)
         print('classifer initialized')
         self.listener = tf.TransformListener()
@@ -142,6 +141,8 @@ class TLDetector(object):
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8")
 
         # Get classification
+        prediction = self.light_classifier.get_classification(cv_image)
+        print("Prediction correct? light.state=", light.state, ",prediction=", self.light_classifier.get_classification(cv_image))
         return self.light_classifier.get_classification(cv_image)
 
     def process_traffic_lights(self):
