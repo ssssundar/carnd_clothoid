@@ -36,6 +36,7 @@ class Controller(object):
         self.accel_limit = accel_limit
         self.wheel_radius = wheel_radius
 
+        self.steering_controller = PID(kp=0.5, ki=0.004, kd=0.25, mn=-max_steer_angle, mx=max_steer_angle)
         self.last_time = rospy.get_time()  
 
     def control(self, cur_vel, dbw_enabled, linear_vel, angular_vel):
@@ -43,13 +44,11 @@ class Controller(object):
         # Return throttle, brake, steer
         if not dbw_enabled:
             self.throttle_controller.reset()
+            self.steering_controller.reset()
             return 0.,0.,0.
  
         cur_vel = self.vel_lpf.filt(cur_vel)
-        steering = self.yaw_controller.get_steering(linear_vel, angular_vel, cur_vel)
-
-        # Apply Low Pass Filter to steering to dampen it.
-        steering = self.steer_lpf.filt(steering)
+        yaw_steering = self.yaw_controller.get_steering(linear_vel, angular_vel, cur_vel)
 
         vel_err = linear_vel - cur_vel
         self.last_vel = cur_vel
@@ -59,6 +58,11 @@ class Controller(object):
         self.last_time = cur_time
 
         throttle = self.throttle_controller.step(vel_err, sample_time)
+        pid_steering = self.steering_controller.step(angular_vel, sample_time)
+        steering = pid_steering + 1.0 * yaw_steering
+
+        # Apply Low Pass Filter to steering to dampen it.
+        steering = self.steer_lpf.filt(steering)
         brake = 0
 
         if linear_vel == 0. and cur_vel < 0.1:
