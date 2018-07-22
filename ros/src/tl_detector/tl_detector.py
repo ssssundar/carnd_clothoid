@@ -22,6 +22,8 @@ class TLDetector(object):
         self.waypoints = None
         self.camera_image = None
         self.lights = []
+        self.waypoints_2d = None
+        self.waypoint_tree = None
 
         sub1 = rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
         sub2 = rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
@@ -42,15 +44,16 @@ class TLDetector(object):
         self.upcoming_red_light_pub = rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
 
         self.bridge = CvBridge()
-        self.light_classifier = TLClassifier()
+        self.is_site = self.config["is_site"]
+        print('is_site', self.is_site)
+        self.light_classifier = TLClassifier(self.is_site)
+        print('classifer initialized')
         self.listener = tf.TransformListener()
 
         self.state = TrafficLight.UNKNOWN
         self.last_state = TrafficLight.UNKNOWN
         self.last_wp = -1
         self.state_count = 0
-        self.waypoints_2d = None
-        self.waypoint_tree = None
         
 
         rospy.spin()
@@ -129,17 +132,17 @@ class TLDetector(object):
         """
         # FIXME: This is only for simulator needs to be removed once the classifier code is integrator
         # For Testing, just return the light state
-        return light.state
+        # return light.state
 
-        #FIXME: Uncomment following code once Classifier code is integrator
-        #if(not self.has_image):
-        #    self.prev_light_loc = None
-        #    return False
+        # FIXME: Uncomment following code once Classifier code is integrator
+        if(not self.has_image):
+            self.prev_light_loc = None
+            return False
 
-        #cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
+        cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
 
-        #Get classification
-        #return self.light_classifier.get_classification(cv_image)
+        # Get classification
+        return self.light_classifier.get_classification(cv_image)
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its

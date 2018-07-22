@@ -3,20 +3,21 @@ from styx_msgs.msg import TrafficLight
 import tensorflow as tf
 
 class TLClassifier(object):
-    def __init__(self, is_sim):
+    def __init__(self, is_site):
         classifier_model = 'light_classification/classifiers/sim_model_classifier/frozen_inference_graph.pb'
-        if not is_sim:
+        if is_site:
             classifier_model = 'light_classification/classifiers/real_model_classifier/frozen_inference_graph.pb'
         # TODO: experiment with different thresholds to pick the best
         self.threshold = .5
 
         self.graph = self._load_graph(classifier_model)
+        print('graph loaded')
         self.image_tensor = self.graph.get_tensor_by_name('image_tensor:0')
         self.scores = self.graph.get_tensor_by_name('detection_scores:0')
         self.classes = self.graph.get_tensor_by_name('detection_classes:0')
         self.sess = tf.Session(graph=self.graph)
 
-    def _load_graph(frozen_graph_filename):
+    def _load_graph(self, frozen_graph_filename):
         with tf.gfile.GFile(frozen_graph_filename, "rb") as f:
             graph_def = tf.GraphDef()
             graph_def.ParseFromString(f.read())
@@ -45,13 +46,15 @@ class TLClassifier(object):
 
         scores = np.squeeze(scores)
         classes = np.squeeze(classes).astype(np.int32)
+        print('scores: ', scores[0])
+        print('classes: ', classes[0])
 
         if (len(scores) > 0) and (scores[0] > self.threshold):
             if classes[0] == 1:
-                return TrafficLight.Green
+                return TrafficLight.GREEN
             if classes[0] == 2:
-                return TrafficLight.Red
+                return TrafficLight.RED
             if classes[0] == 3:
-                return TrafficLight.Yellow
+                return TrafficLight.YELLOW
 
         return TrafficLight.UNKNOWN
