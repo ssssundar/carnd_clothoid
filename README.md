@@ -4,7 +4,7 @@ This is the project repo for the final project of the Udacity Self-Driving Car N
 
 |   Name                            |   Udacity account email            |
 |-----------------------------------|------------------------------------|
-| Raghu Changalva  (**Team Lead**)  | raghu.changalva at gmail.com |
+| Raghu Changalvala(**Team Lead**)  | raghu.changalva at gmail.com |
 | Balachander Rajakondala           | balachander at  gmail.com    |
 | Sundar Raman                      | ssssundar at yahoo.com       |
 | Yufeiliu Brown                    | yufeiliubrown at gmail.com   |
