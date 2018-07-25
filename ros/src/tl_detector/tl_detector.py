@@ -24,7 +24,7 @@ class TLDetector(object):
         self.lights = []
         self.waypoints_2d = None
         self.waypoint_tree = None
-        self.is_classifier = False
+        self.is_classifier = True
 
         sub1 = rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
         sub2 = rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
@@ -48,7 +48,7 @@ class TLDetector(object):
         self.is_site = self.config["is_site"]
         if(self.is_classifier):
             self.light_classifier = TLClassifier(self.is_site)
-            print('classifer initialized')
+            rospy.loginfo('classifer initialized')
             self.listener = tf.TransformListener()
 
         self.state = TrafficLight.UNKNOWN
@@ -68,7 +68,7 @@ class TLDetector(object):
         
     def traffic_cb(self, msg):
         self.lights = msg.lights
-        #print("lights array", self.lights)
+        #rospy.loginfo("lights array", self.lights)
 
     def image_cb(self, msg):
         """Identifies red lights in the incoming camera image and publishes the index
@@ -89,7 +89,7 @@ class TLDetector(object):
         used.
         '''
         if self.state != state:
-            #print('TL state', self.state)
+            #rospy.loginfo('TL state', self.state)
             self.state_count = 0
             self.state = state
             
@@ -101,7 +101,7 @@ class TLDetector(object):
         else:
             self.upcoming_red_light_pub.publish(Int32(self.last_wp))
         self.state_count += 1
-        #print('TL counter count:', self.state_count)
+        #rospy.loginfo('TL counter count:', self.state_count)
 
     def get_closest_waypoint(self, pose):
         """Identifies the closest path waypoint to the given position
@@ -144,7 +144,8 @@ class TLDetector(object):
 
             #Get classification
             prediction = self.light_classifier.get_classification(cv_image)
-            print("Prediction correct? light.state=", light.state, ",prediction=", self.light_classifier.get_classification(cv_image))
+            #rospy.loginfo("light.state= %s, Prediction %s", light.state, self.light_classifier.get_classification(cv_image))
+            #rospy.loginfo("Light State Predicted %s", self.light_classifier.get_classification(cv_image))
             return self.light_classifier.get_classification(cv_image)
 
     def process_traffic_lights(self):

@@ -42,11 +42,11 @@ class Controller(object):
     def control(self, cur_vel, dbw_enabled, linear_vel, angular_vel):
         # TODO: Change the arg, kwarg list to suit your needs
         # Return throttle, brake, steer
+        rospy.loginfo('dbw %s Vel %s',dbw_enable,cur_vel)
         if not dbw_enabled:
             self.throttle_controller.reset()
             self.steering_controller.reset()
             return 0.,0.,0.
- 
         cur_vel = self.vel_lpf.filt(cur_vel)
         yaw_steering = self.yaw_controller.get_steering(linear_vel, angular_vel, cur_vel)
 

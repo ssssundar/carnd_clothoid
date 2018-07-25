@@ -46,8 +46,8 @@ class TLClassifier(object):
 
         scores = np.squeeze(scores)
         classes = np.squeeze(classes).astype(np.int32)
-        print('scores: ', scores[0])
-        print('classes: ', classes[0])
+        #rospy.loginfo('scores: ', scores[0])
+        #rospy.loginfo('traffic classes: ', classes[0])
 
         if (len(scores) > 0) and (scores[0] > self.threshold):
             if classes[0] == 1:
